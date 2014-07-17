@@ -9,29 +9,18 @@
 #include <stddef.h>
 
 #include <jump_label.h>
+#include <misc.h>
 
 // error suppression:
 
 #define WARN(x...) 
 
-// need to translate to c11 atomic ops or not?
+// need to translate to c11 atomic ops or not? stub for now
 
 int atomic_read(void* p) { return 0; }
 int atomic_inc(void* p) { return 0; }
 int atomic_inc_not_zero(void* p) { return 0; }
 int atomic_dec_and_mutex_lock(void* p) { return 0; }
-
-// general linux kernel macros:
-
-/**
- * container_of - cast a member of a structure out to the containing structure
- * @ptr:        the pointer to the member.
- * @type:       the type of the container struct this is embedded in.
- * @member:     the name of the member within the struct.
- *
- */
-#define container_of(ptr, type, member) \
-	((type *)((char *)(ptr) - offsetof(type, member)))
 
 void jump_label_lock(void)
 {

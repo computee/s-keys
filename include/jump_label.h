@@ -4,13 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-//#define __always_inline inline
-
+// temp here
 typedef struct {
 	int counter;
 } atomic_t;
-
-// #define __always_inline         inline __attribute__((always_inline))
 
 /*
  * Jump label support
@@ -117,19 +114,30 @@ static __always_inline bool static_key_true(struct static_key *key)
 	return !static_key_false(key);
 }
 
-extern struct jump_entry __start___jump_table[];
-extern struct jump_entry __stop___jump_table[];
+// platform specific functions/defines needed:
 
-extern void jump_label_init(void);
-extern void jump_label_lock(void);
-extern void jump_label_unlock(void);
-extern void arch_jump_label_transform(struct jump_entry *entry,
-				      enum jump_label_type type);
-extern void arch_jump_label_transform_static(struct jump_entry *entry,
-					     enum jump_label_type type);
-extern int jump_label_text_reserved(void *start, void *end);
-extern void static_key_slow_inc(struct static_key *key);
-extern void static_key_slow_dec(struct static_key *key);
+// currently in the x86 header/impl:
+// bool arch_static_branch(struct static_key *key)
+// struct jump_entry {
+
+struct jump_entry __start___jump_table[];
+struct jump_entry __stop___jump_table[];
+
+void arch_jump_label_transform(struct jump_entry *entry, enum jump_label_type type);
+
+// in generic jl impl:
+void jump_label_init(void);
+void jump_label_lock(void);
+void jump_label_unlock(void);
+
+int jump_label_text_reserved(void *start, void *end);
+
+void static_key_slow_inc(struct static_key *key);
+void static_key_slow_dec(struct static_key *key);
+
+// both !?
+void arch_jump_label_transform_static(struct jump_entry *entry, enum jump_label_type type);
+
 
 //extern void jump_label_apply_nops(struct module *mod);
 

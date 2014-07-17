@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <string.h>
 
+#include <jump_label.h>
 #include <jump_label_x86.h>
 
 // text_poke are kernel equivalents of mprotect, stub out for now:

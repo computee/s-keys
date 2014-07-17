@@ -4,21 +4,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <jump_label.h>
 #include <nops.h>
 #include <asm.h>
-
-/* These are going somewhere else soon */
-
-#define __stringify(x...)	#x
-#define stringify(x...)		__stringify(x)
-
-#define a_v_g(x...) do { __asm__ goto(x); } while (0)
-
-#define likely(x)      __builtin_expect(!!(x), 1)
-#define unlikely(x)    __builtin_expect(!!(x), 0)
-
-/* */
+#include <misc.h>
 
 #define JUMP_LABEL_NOP_SIZE 5
 
