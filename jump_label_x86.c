@@ -53,7 +53,7 @@ static void __jump_label_transform(struct jump_entry *entry,
 {
 	union jump_code_union code;
 	const unsigned char default_nop[] = { STATIC_KEY_INIT_NOP };
-	const unsigned char *ideal_nop = ideal_nops[NOP_ATOMIC5];
+	const unsigned char ideal_nop[] = { STATIC_KEY_INIT_NOP };
 
 	if (type == JUMP_LABEL_ENABLE) {
 		if (init) {
@@ -124,6 +124,8 @@ static enum {
 	JL_STATE_UPDATE,
 } jlstate = JL_STATE_START;
 
+#ifdef CONFIG_MODULES
+
 void arch_jump_label_transform_static(struct jump_entry *entry,
 				      enum jump_label_type type)
 {
@@ -136,7 +138,7 @@ void arch_jump_label_transform_static(struct jump_entry *entry,
 	 */
 	if (jlstate == JL_STATE_START) {
 		const unsigned char default_nop[] = { STATIC_KEY_INIT_NOP };
-		const unsigned char *ideal_nop = ideal_nops[NOP_ATOMIC5];
+		const unsigned char ideal_nop[] = { STATIC_KEY_INIT_NOP };
 
 		if (memcmp(ideal_nop, default_nop, 5) != 0)
 			jlstate = JL_STATE_UPDATE;
@@ -147,3 +149,4 @@ void arch_jump_label_transform_static(struct jump_entry *entry,
 		__jump_label_transform(entry, type, text_poke_early, 1);
 }
 
+#endif 

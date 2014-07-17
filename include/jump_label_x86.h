@@ -16,6 +16,8 @@
 # define STATIC_KEY_INIT_NOP GENERIC_NOP5_ATOMIC
 #endif
 
+struct static_key;
+
 static __always_inline bool arch_static_branch(struct static_key *key)
 {
 	a_v_g ("1:"

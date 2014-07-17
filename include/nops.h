@@ -134,7 +134,8 @@
 #define ASM_NOP_MAX 8
 #define NOP_ATOMIC5 (ASM_NOP_MAX+1)	/* Entry for the 5-byte atomic NOP */
 
-extern const unsigned char * const *ideal_nops;
-extern void arch_init_ideal_nops(void);
+// hardcode these for x86_64 for now:
+const unsigned char * const *ideal_nops;
+void arch_init_ideal_nops(void);
 
 #endif /* _ASM_X86_NOPS_H */

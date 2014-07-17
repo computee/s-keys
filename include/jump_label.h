@@ -54,7 +54,7 @@ typedef struct {
  *
 */
 
-extern bool static_key_initialized;
+static bool static_key_initialized = false;
 
 #define STATIC_KEY_CHECK_USE() WARN(!static_key_initialized,		      \
 				    "%s used before call to jump_label_init", \

@@ -7,6 +7,7 @@
  */
 
 #include <stddef.h>
+#include <stdlib.h>
 
 #include <jump_label.h>
 #include <misc.h>
@@ -30,6 +31,12 @@ void jump_label_unlock(void)
 {
 }
 
+// stub out kernel_text_address() for now
+int kernel_text_address(unsigned long addr)
+{
+	return 1;
+}
+
 static int jump_label_cmp(const void *a, const void *b)
 {
 	const struct jump_entry *jea = a;
@@ -51,7 +58,7 @@ jump_label_sort_entries(struct jump_entry *start, struct jump_entry *stop)
 
 	size = (((unsigned long)stop - (unsigned long)start)
 					/ sizeof(struct jump_entry));
-	sort(start, size, sizeof(struct jump_entry), jump_label_cmp, NULL);
+	qsort(start, size, sizeof(struct jump_entry), jump_label_cmp);
 }
 
 static void jump_label_update(struct static_key *key, int enable);
@@ -83,15 +90,15 @@ static void __static_key_slow_dec(struct static_key *key,
 		return;
 	}
 
-	if (rate_limit) {
-		atomic_inc(&key->enabled);
-		schedule_delayed_work(work, rate_limit);
-	} else {
+//	if (rate_limit) {
+//		atomic_inc(&key->enabled);
+//		schedule_delayed_work(work, rate_limit);
+//	} else {
 		if (!jump_label_get_branch_default(key))
 			jump_label_update(key, JUMP_LABEL_DISABLE);
 		else
 			jump_label_update(key, JUMP_LABEL_ENABLE);
-	}
+//	}
 	jump_label_unlock();
 }
 
