@@ -20,13 +20,22 @@ struct static_key;
 
 static __always_inline bool arch_static_branch(struct static_key *key)
 {
-	a_v_g ("1:"
-		".byte " stringify(STATIC_KEY_INIT_NOP) "\n\t"
-		".pushsection __jump_table,  \"aw\" \n\t"
-		_ASM_ALIGN "\n\t"
-		_ASM_PTR "1b, %l[l_yes], %c0 \n\t"
-		".popsection \n\t"
-		: :  "i" (key) : : l_yes);
+#warning ("1:" \
+	".byte " stringify(STATIC_KEY_INIT_NOP) "\n\t" \
+	".pushsection __jump_table,  \"aw\" \n\t" \
+	_ASM_ALIGN "\n\t" \
+	_ASM_PTR "1b, %l[l_yes], %c0 \n\t" \
+	".popsection \n\t" \
+	: :  "i" (key) : : l_yes)
+
+	__asm__ goto ("1:" \
+		".byte " stringify(STATIC_KEY_INIT_NOP) "\n\t" \
+		".pushsection __jump_table,  \"aw\" \n\t" \
+		_ASM_ALIGN "\n\t" \
+		_ASM_PTR "1b, %l[l_yes], %c0 \n\t" \
+		".popsection \n\t" \
+		: :  : : l_yes);
+
 	return false;
 l_yes:
 	return true;

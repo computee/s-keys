@@ -9,6 +9,14 @@ typedef struct {
 	int counter;
 } atomic_t;
 
+// possibly not arch-independent ?
+#define ATOMIC_INIT(i) { (i) }
+
+#ifdef __LP64__
+#include <jump_label_x86.h>
+#endif
+
+
 /*
  * Jump label support
  *
@@ -210,5 +218,4 @@ static inline bool static_key_enabled(struct static_key *key)
 {
 	return static_key_count(key) > 0;
 }
-
 #endif	/* _LINUX_JUMP_LABEL_H */
