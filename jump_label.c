@@ -18,10 +18,38 @@
 
 // need to translate to c11 atomic ops or not? stub for now
 
-int atomic_read(void* p) { return 0; }
-int atomic_inc(void* p) { return 0; }
-int atomic_inc_not_zero(void* p) { return 0; }
-int atomic_dec_and_mutex_lock(void* p) { return 0; }
+static inline int atomic_read(const atomic_t *v)
+{
+	return (*(volatile int *)&(v)->counter);
+}
+
+int atomic_inc(atomic_t *p)
+{
+	return ++(p->counter);
+}
+
+/**
+ * Increment by 1 if p is non-zero, otherwise do nothing.
+ * Return non-zero if p was incremented.
+**/
+int atomic_inc_not_zero(atomic_t *p)
+{
+	if (p->counter) {
+		p->counter += 1;
+		return p->counter;
+	} else {
+		return 0;
+	}
+}
+
+/**
+ * Decrement, no mutex for now
+ */
+int atomic_dec_and_mutex_lock(atomic_t *p)
+{
+	return --(p->counter);
+
+}
 
 void jump_label_lock(void)
 {
@@ -82,7 +110,7 @@ void static_key_slow_inc(struct static_key *key)
 }
 
 static void __static_key_slow_dec(struct static_key *key,
-		unsigned long rate_limit, struct delayed_work *work)
+		unsigned long rate_limit, void *work)
 {
 	if (!atomic_dec_and_mutex_lock(&key->enabled)) {
 		WARN(atomic_read(&key->enabled) < 0,
@@ -199,6 +227,7 @@ static enum jump_label_type jump_label_type(struct static_key *key)
 
 	return JUMP_LABEL_DISABLE;
 }
+
 
 void jump_label_init(void)
 {
