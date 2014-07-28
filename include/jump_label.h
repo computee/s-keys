@@ -85,10 +85,10 @@ enum jump_label_type {
 	JUMP_LABEL_ENABLE,
 };
 
-static inline int static_key_count(struct static_key *key)
+static inline atomic_t static_key_count(struct static_key *key)
 {
 	//return atomic_read(&key->enabled);
-	return (&key->enabled);
+	return key->enabled;
 }
 
 #ifdef HAVE_JUMP_LABEL
@@ -128,8 +128,8 @@ static __always_inline bool static_key_true(struct static_key *key)
 // bool arch_static_branch(struct static_key *key)
 // struct jump_entry {
 
-struct jump_entry __start___jump_table[];
-struct jump_entry __stop___jump_table[];
+extern struct jump_entry __start___jump_table[] __attribute__ ((section ("__jump_table")));
+extern struct jump_entry __stop___jump_table[] __attribute__ ((section ("__jump_table")));
 
 void arch_jump_label_transform(struct jump_entry *entry, enum jump_label_type type);
 
@@ -216,6 +216,6 @@ static inline int jump_label_apply_nops(struct module *mod)
 
 static inline bool static_key_enabled(struct static_key *key)
 {
-	return static_key_count(key) > 0;
+	return static_key_count(key).counter > 0;
 }
 #endif	/* _LINUX_JUMP_LABEL_H */
