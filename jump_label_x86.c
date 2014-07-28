@@ -7,14 +7,30 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include <assert.h>
+
+#include <sys/mman.h>
+#include <unistd.h>
 
 #include <jump_label.h>
 #include <jump_label_x86.h>
+
+static inline void *pageof(const void* p)
+{
+	size_t pagesize = sysconf(_SC_PAGESIZE);
+	return (void*) ((uintptr_t)p & ~(pagesize - 1));
+}
 
 // text_poke are kernel equivalents of mprotect, stub out for now:
 
 void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler)
 {
+	printf("%i\n", addr);
+	printf("%i\n", pageof(addr));
+
+	if (mprotect(pageof(addr), len, PROT_READ | PROT_WRITE | PROT_EXEC))
+		perror("mprotect");
+
 	return addr;
 }
 
@@ -44,6 +60,8 @@ static void bug_at(unsigned char *ip, int line)
 	       ip, ip, ip[0], ip[1], ip[2], ip[3], ip[4], __FILE__, line);
 	BUG();
 */
+
+	assert(false);
 }
 
 static void __jump_label_transform(struct jump_entry *entry,
