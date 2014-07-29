@@ -149,12 +149,12 @@ void arch_jump_label_transform_static(struct jump_entry *entry, enum jump_label_
 
 //extern void jump_label_apply_nops(struct module *mod);
 
-#define STATIC_KEY_INIT_TRUE ((struct static_key)		\
+#define STATIC_KEY_INIT_TRUE 		\
 	{ .enabled = ATOMIC_INIT(1),				\
-	  .entries = (void *)JUMP_LABEL_TYPE_TRUE_BRANCH })
-#define STATIC_KEY_INIT_FALSE ((struct static_key)		\
+	  .entries = (void *)JUMP_LABEL_TYPE_TRUE_BRANCH }
+#define STATIC_KEY_INIT_FALSE		\
 	{ .enabled = ATOMIC_INIT(0),				\
-	  .entries = (void *)JUMP_LABEL_TYPE_FALSE_BRANCH })
+	  .entries = (void *)JUMP_LABEL_TYPE_FALSE_BRANCH }
 
 #else  /* !HAVE_JUMP_LABEL */
 

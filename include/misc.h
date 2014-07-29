@@ -6,11 +6,7 @@
 #define __stringify(x...)       #x 
 #define stringify(x...)         __stringify(x)
 
-/* 
-#define a_v_g(x...) do { asm goto(x); } while (0)
-*/
-
-#define asm_volatile_goto(x) do { __asm__ goto (x); asm (""); } while (0)
+#define asm_volatile_goto(x) do { __asm__ goto (x); __asm__ (""); } while (0)
  
 #define likely(x)      __builtin_expect(!!(x), 1) 
 #define unlikely(x)    __builtin_expect(!!(x), 0) 

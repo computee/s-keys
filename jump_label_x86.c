@@ -25,8 +25,8 @@ static inline void *pageof(const void* p)
 
 void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler)
 {
-	printf("%i\n", addr);
-	printf("%i\n", pageof(addr));
+	printf("%p\n", addr);
+	printf("%p\n", pageof(addr));
 
 	if (mprotect(pageof(addr), len, PROT_READ | PROT_WRITE | PROT_EXEC))
 		perror("mprotect");
@@ -55,12 +55,8 @@ static void bug_at(unsigned char *ip, int line)
 	 * corrupting the kernel.
 	 */
 
-/*
-	pr_warning("Unexpected op at %pS [%p] (%02x %02x %02x %02x %02x) %s:%d\n",
+	printf("Unexpected op at %pS [%p] (%02x %02x %02x %02x %02x) %s:%d\n",
 	       ip, ip, ip[0], ip[1], ip[2], ip[3], ip[4], __FILE__, line);
-	BUG();
-*/
-
 	assert(false);
 }
 
