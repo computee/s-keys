@@ -1,13 +1,22 @@
+#include <stdio.h>
+
 #include <jump_label.h>
+
+static struct static_key key = STATIC_KEY_INIT_FALSE;
 
 int main (int argc, char *argv[])
 {
-	struct static_key key = STATIC_KEY_INIT_FALSE;
+	jump_label_init();
+//	arch_static_branch(&key);
+
+
+	static_key_slow_inc(&key);
+
 
 	if (static_key_false(&key))
-		printf("false\n");
-	else
 		printf("true\n");
+	else
+		printf("false\n");
 
 	return 0;
 }
