@@ -18,7 +18,7 @@
 
 struct static_key;
 
-static __always_inline bool arch_static_branch(struct static_key *key)
+static bool __always_inline arch_static_branch(struct static_key *key)
 {
 	asm_volatile_goto ("1:"
 		".byte " stringify(STATIC_KEY_INIT_NOP) "\n\t"
@@ -26,7 +26,7 @@ static __always_inline bool arch_static_branch(struct static_key *key)
 		_ASM_ALIGN "\n\t"
 		_ASM_PTR "1b, %l[l_yes], %c0 \n\t"
 		".popsection \n\t"
-		: : : : l_yes);
+		: : "i" (key) : : l_yes);
 
 	return false;
 l_yes:
