@@ -108,7 +108,7 @@ static void __jump_label_transform(struct jump_entry *entry,
 			if (unlikely(memcmp((void *)entry->code, &code, 5) != 0))
 				bug_at((void *)entry->code, __LINE__);
 		}
-		memcpy(&code, ideal_nops[NOP_ATOMIC5], JUMP_LABEL_NOP_SIZE);
+		memcpy(&code, ideal_nop, JUMP_LABEL_NOP_SIZE);
 	}
 
 	/*
