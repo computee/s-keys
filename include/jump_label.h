@@ -16,6 +16,8 @@ typedef struct {
 #include <jump_label_x86.h>
 #endif
 
+// error suppression:
+#define WARN(x,...) if (x) printf(__VA_ARGS__);
 
 /*
  * Jump label support

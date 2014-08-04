@@ -8,13 +8,11 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <jump_label.h>
 #include <misc.h>
 
-// error suppression:
-
-#define WARN(x...) 
 
 // need to translate to c11 atomic ops or not? stub for now
 
