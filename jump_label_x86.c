@@ -83,8 +83,7 @@ static void __jump_label_transform(struct jump_entry *entry,
 			 * ...otherwise expect an ideal_nop. Otherwise
 			 * something went horribly wrong.
 			 */
-			if (unlikely(memcmp((void *)entry->code, ideal_nop, 5)
-				     != 0))
+			if (unlikely(memcmp((void *)entry->code, ideal_nop, 5) != 0))
 				bug_at((void *)entry->code, __LINE__);
 		}
 
