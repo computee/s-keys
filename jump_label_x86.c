@@ -35,11 +35,6 @@ void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler)
 	return addr;
 }
 
-void *text_poke_early(void *addr, const void *opcode, size_t len)
-{
-	return addr;
-}
-
 union jump_code_union {
 	char code[JUMP_LABEL_NOP_SIZE];
 	struct {
