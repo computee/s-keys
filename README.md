@@ -1,12 +1,23 @@
 s-keys
 ======
 
-Port of linux kernel jump labels to userspace. Uses GCC goto asm extension.
+Port of linux kernel jump labels to userspace. Uses GCC goto asm extension and a some other gcc/gas
+specific extensions (always online, .pushsection, section attributes).
 
-See these two LWN articles:
+Originally written by Jason Baron.
 
+See these two LWN articles for an introduction:
 
-The kernel documentation under Documentation/static-keys.txt
+http://lwn.net/Articles/412072/
+http://lwn.net/Articles/436041/
+
+Another good one on kernel elf special sections:
+
+http://lwn.net/Articles/531148/
+
+And the kernel documentation:
+
+https://www.kernel.org/doc/Documentation/static-keys.txt
 
 Installing:
     git clone https://github.com/computee/s-keys.git
