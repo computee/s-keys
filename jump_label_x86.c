@@ -24,13 +24,15 @@ static inline void *pageof(const void* p)
 
 // text_poke are kernel equivalents of mprotect, stub out for now:
 
-void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler)
+void *sk_mprotect(void *addr, size_t len)
 {
 	printf("%p\n", addr);
 	printf("%p\n", pageof(addr));
 
-	if (mprotect(pageof(addr), len, PROT_READ | PROT_WRITE | PROT_EXEC))
+	if (mprotect(pageof(addr), len, PROT_READ | PROT_WRITE | PROT_EXEC)) {
 		perror("mprotect");
+		return NULL;
+	}
 
 	return addr;
 }
@@ -113,8 +115,13 @@ static void __jump_label_transform(struct jump_entry *entry,
 	 * always nop being the 'currently valid' instruction
 	 *
 	 */
-	text_poke_bp((void *)entry->code, &code, JUMP_LABEL_NOP_SIZE,
-			     (void *)entry->code + JUMP_LABEL_NOP_SIZE);
+
+	if (sk_mprotect((void *)entry->code, JUMP_LABEL_NOP_SIZE) == NULL)
+	    bug_at("sk_mprotect", __LINE__);
+	
+	// and now do the actual copy:
+	memcpy((void*) entry->code, &code, JUMP_LABEL_NOP_SIZE);
+	inits = 0;
 }
 
 void arch_jump_label_transform(struct jump_entry *entry,
