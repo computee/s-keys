@@ -75,9 +75,6 @@ struct static_key {
 	atomic_t enabled;
 /* Set lsb bit to 1 if branch is default true, 0 ot */
 	struct jump_entry *entries;
-#ifdef CONFIG_MODULES
-	struct static_key_mod *next;
-#endif
 };
 
 #define HAVE_JUMP_LABEL

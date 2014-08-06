@@ -144,24 +144,6 @@ void static_key_slow_dec(struct static_key *key)
 	__static_key_slow_dec(key, 0, NULL);
 }
 
-/* disable ratelimit related stuff for now 
-// export
-void static_key_slow_dec_deferred(struct static_key_deferred *key)
-{
-	STATIC_KEY_CHECK_USE();
-	__static_key_slow_dec(&key->key, key->timeout, &key->work);
-}
-
-// export
-void jump_label_rate_limit(struct static_key_deferred *key,
-		unsigned long rl)
-{
-	STATIC_KEY_CHECK_USE();
-	key->timeout = rl;
-	INIT_DELAYED_WORK(&key->work, jump_label_update_timeout);
-}
-*/
-
 static int addr_conflict(struct jump_entry *entry, void *start, void *end)
 {
 	if (entry->code <= (unsigned long)end &&
@@ -250,205 +232,10 @@ void jump_label_init(void)
 		 * Set key->entries to iter, but preserve JUMP_LABEL_TRUE_BRANCH.
 		 */
 		*((unsigned long *)&key->entries) += (unsigned long)iter;
-#ifdef CONFIG_MODULES
-		key->next = NULL;
-#endif
 	}
 	static_key_initialized = true;
 	jump_label_unlock();
 }
-
-#ifdef CONFIG_MODULES
-
-struct static_key_mod {
-	struct static_key_mod *next;
-	struct jump_entry *entries;
-	struct module *mod;
-};
-
-static int __jump_label_mod_text_reserved(void *start, void *end)
-{
-	struct module *mod;
-
-	mod = __module_text_address((unsigned long)start);
-	if (!mod)
-		return 0;
-
-	WARN_ON_ONCE(__module_text_address((unsigned long)end) != mod);
-
-	return __jump_label_text_reserved(mod->jump_entries,
-				mod->jump_entries + mod->num_jump_entries,
-				start, end);
-}
-
-static void __jump_label_mod_update(struct static_key *key, int enable)
-{
-	struct static_key_mod *mod = key->next;
-
-	while (mod) {
-		struct module *m = mod->mod;
-
-		__jump_label_update(key, mod->entries,
-				    m->jump_entries + m->num_jump_entries,
-				    enable);
-		mod = mod->next;
-	}
-}
-
-/***
- * apply_jump_label_nops - patch module jump labels with arch_get_jump_label_nop()
- * @mod: module to patch
- *
- * Allow for run-time selection of the optimal nops. Before the module
- * loads patch these with arch_get_jump_label_nop(), which is specified by
- * the arch specific jump label code.
- */
-void jump_label_apply_nops(struct module *mod)
-{
-	struct jump_entry *iter_start = mod->jump_entries;
-	struct jump_entry *iter_stop = iter_start + mod->num_jump_entries;
-	struct jump_entry *iter;
-
-	/* if the module doesn't have jump label entries, just return */
-	if (iter_start == iter_stop)
-		return;
-
-	for (iter = iter_start; iter < iter_stop; iter++) {
-		arch_jump_label_transform_static(iter, JUMP_LABEL_DISABLE);
-	}
-}
-
-static int jump_label_add_module(struct module *mod)
-{
-	struct jump_entry *iter_start = mod->jump_entries;
-	struct jump_entry *iter_stop = iter_start + mod->num_jump_entries;
-	struct jump_entry *iter;
-	struct static_key *key = NULL;
-	struct static_key_mod *jlm;
-
-	/* if the module doesn't have jump label entries, just return */
-	if (iter_start == iter_stop)
-		return 0;
-
-	jump_label_sort_entries(iter_start, iter_stop);
-
-	for (iter = iter_start; iter < iter_stop; iter++) {
-		struct static_key *iterk;
-
-		iterk = (struct static_key *)(unsigned long)iter->key;
-		if (iterk == key)
-			continue;
-
-		key = iterk;
-		if (__module_address(iter->key) == mod) {
-			/*
-			 * Set key->entries to iter, but preserve JUMP_LABEL_TRUE_BRANCH.
-			 */
-			*((unsigned long *)&key->entries) += (unsigned long)iter;
-			key->next = NULL;
-			continue;
-		}
-		jlm = kzalloc(sizeof(struct static_key_mod), GFP_KERNEL);
-		if (!jlm)
-			return -ENOMEM;
-		jlm->mod = mod;
-		jlm->entries = iter;
-		jlm->next = key->next;
-		key->next = jlm;
-
-		if (jump_label_type(key) == JUMP_LABEL_ENABLE)
-			__jump_label_update(key, iter, iter_stop, JUMP_LABEL_ENABLE);
-	}
-
-	return 0;
-}
-
-static void jump_label_del_module(struct module *mod)
-{
-	struct jump_entry *iter_start = mod->jump_entries;
-	struct jump_entry *iter_stop = iter_start + mod->num_jump_entries;
-	struct jump_entry *iter;
-	struct static_key *key = NULL;
-	struct static_key_mod *jlm, **prev;
-
-	for (iter = iter_start; iter < iter_stop; iter++) {
-		if (iter->key == (jump_label_t)(unsigned long)key)
-			continue;
-
-		key = (struct static_key *)(unsigned long)iter->key;
-
-		if (__module_address(iter->key) == mod)
-			continue;
-
-		prev = &key->next;
-		jlm = key->next;
-
-		while (jlm && jlm->mod != mod) {
-			prev = &jlm->next;
-			jlm = jlm->next;
-		}
-
-		if (jlm) {
-			*prev = jlm->next;
-			kfree(jlm);
-		}
-	}
-}
-
-static void jump_label_invalidate_module_init(struct module *mod)
-{
-	struct jump_entry *iter_start = mod->jump_entries;
-	struct jump_entry *iter_stop = iter_start + mod->num_jump_entries;
-	struct jump_entry *iter;
-
-	for (iter = iter_start; iter < iter_stop; iter++) {
-		if (within_module_init(iter->code, mod))
-			iter->code = 0;
-	}
-}
-
-static int
-jump_label_module_notify(struct notifier_block *self, unsigned long val,
-			 void *data)
-{
-	struct module *mod = data;
-	int ret = 0;
-
-	switch (val) {
-	case MODULE_STATE_COMING:
-		jump_label_lock();
-		ret = jump_label_add_module(mod);
-		if (ret)
-			jump_label_del_module(mod);
-		jump_label_unlock();
-		break;
-	case MODULE_STATE_GOING:
-		jump_label_lock();
-		jump_label_del_module(mod);
-		jump_label_unlock();
-		break;
-	case MODULE_STATE_LIVE:
-		jump_label_lock();
-		jump_label_invalidate_module_init(mod);
-		jump_label_unlock();
-		break;
-	}
-
-	return notifier_from_errno(ret);
-}
-
-struct notifier_block jump_label_module_nb = {
-	.notifier_call = jump_label_module_notify,
-	.priority = 1, /* higher than tracepoints */
-};
-
-static __init int jump_label_init_module(void)
-{
-	return register_module_notifier(&jump_label_module_nb);
-}
-early_initcall(jump_label_init_module);
-
-#endif /* CONFIG_MODULES */
 
 /***
  * jump_label_text_reserved - check if addr range is reserved
@@ -471,9 +258,6 @@ int jump_label_text_reserved(void *start, void *end)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_MODULES
-	ret = __jump_label_mod_text_reserved(start, end);
-#endif
 	return ret;
 }
 
@@ -482,14 +266,6 @@ static void jump_label_update(struct static_key *key, int enable)
 	struct jump_entry *stop = __stop___jump_table;
 	struct jump_entry *entry = jump_label_get_entries(key);
 
-#ifdef CONFIG_MODULES
-	struct module *mod = __module_address((unsigned long)key);
-
-	__jump_label_mod_update(key, enable);
-
-	if (mod)
-		stop = mod->jump_entries + mod->num_jump_entries;
-#endif
 	/* if there are no users, entry can be NULL */
 	if (entry)
 		__jump_label_update(key, entry, stop, enable);
