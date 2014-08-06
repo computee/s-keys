@@ -131,13 +131,13 @@ void arch_jump_label_transform(struct jump_entry *entry,
 	__jump_label_transform(entry, type, NULL, 0);
 }
 
+#if 0
+
 static enum {
 	JL_STATE_START,
 	JL_STATE_NO_UPDATE,
 	JL_STATE_UPDATE,
 } jlstate = JL_STATE_START;
-
-#ifdef CONFIG_MODULES
 
 void arch_jump_label_transform_static(struct jump_entry *entry,
 				      enum jump_label_type type)
@@ -162,4 +162,4 @@ void arch_jump_label_transform_static(struct jump_entry *entry,
 		__jump_label_transform(entry, type, text_poke_early, 1);
 }
 
-#endif 
+#endif

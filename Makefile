@@ -1,5 +1,5 @@
 CPPFLAGS+=-Iinclude
-CFLAGS+=-O1
+CFLAGS+=-O1 -g
 
 .PHONY: all
 all: main
