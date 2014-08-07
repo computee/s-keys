@@ -1,14 +1,22 @@
 s-keys
 ======
 
-Port of linux kernel jump labels to userspace. Uses GCC goto asm extension and a some other gcc/gas
-specific extensions (always online, .pushsection, section attributes).
+Port of linux kernel jump labels to userspace. Uses GCC goto asm extension and
+ some other gcc/gas specific extensions (always online, .pushsection, section attributes).
 
-Originally written by Jason Baron.
+Jump labels described in the kernel's jump_label.h:
+
+Jump labels provide an interface to generate dynamic branches using
+self-modifying code. Assuming toolchain and architecture support the result
+of a "if (static_key_false(&key))" statement is a unconditional branch (which
+defaults to false - and the true block is placed out of line).
+
+Original authors Jason Baron and Peter Zijlstra.
 
 See these two LWN articles for an introduction:
 
 http://lwn.net/Articles/412072/
+
 http://lwn.net/Articles/436041/
 
 Another good one on kernel elf special sections:
