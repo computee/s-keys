@@ -1,5 +1,5 @@
 s-keys
-====
+===
 
 Port of linux kernel jump labels to userspace. Uses GCC goto asm extension and
  some other gcc/gas specific extensions (always online, .pushsection, section attributes).
@@ -16,6 +16,7 @@ Original authors Jason Baron and Peter Zijlstra.
 See these two LWN articles for an introduction:
 
 > http://lwn.net/Articles/412072/
+
 > http://lwn.net/Articles/436041/
 
 Another good one on kernel elf special sections:
@@ -27,18 +28,23 @@ And the kernel documentation:
 > https://www.kernel.org/doc/Documentation/static-keys.txt
 
 Installing:
-` git clone https://github.com/computee/s-keys.git
-` cd s-keys
-` make
+```
+git clone https://github.com/computee/s-keys.git
+cd s-keys
+make
+```
 
 To use static keys, just include the header and initialize like this:
 
 Todo
-====
+===
 
 pull requests / patches welcome
 
 * Ideal nops: possibly re-implement this system
 * Cross compilation: need to test
+* RPM/deb skeleton files
+* header-only arrangement?
+* unit tests -like make targets and programs
 
 
