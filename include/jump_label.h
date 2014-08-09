@@ -4,20 +4,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// temp here
-typedef struct {
-	int counter;
-} atomic_t;
-
-// possibly not arch-independent ?
-#define ATOMIC_INIT(i) { (i) }
-
 #ifdef __LP64__
 #include <jump_label_x86.h>
 #endif
 
-// error suppression:
-#define WARN(x,...) if (x) printf(__VA_ARGS__);
+// atomic defs should go in arch-dependent header:
+typedef struct {
+	int counter;
+} atomic_t;
+
+#define ATOMIC_INIT(i) { (i) }
+
+#define WARN(x,...) if (x) fprintf(stderr, __VA_ARGS__);
 
 /*
  * Jump label support
@@ -193,16 +191,6 @@ static inline int jump_label_text_reserved(void *start, void *end)
 	return 0;
 }
 
-static inline void jump_label_lock(void) {}
-static inline void jump_label_unlock(void) {}
-
-/*
-static inline int jump_label_apply_nops(struct module *mod)
-{
-	return 0;
-}
-*/
-
 #define STATIC_KEY_INIT_TRUE ((struct static_key) \
 		{ .enabled = ATOMIC_INIT(1) })
 #define STATIC_KEY_INIT_FALSE ((struct static_key) \
@@ -211,10 +199,10 @@ static inline int jump_label_apply_nops(struct module *mod)
 #endif	/* HAVE_JUMP_LABEL */
 
 #define STATIC_KEY_INIT STATIC_KEY_INIT_FALSE
-#define jump_label_enabled static_key_enabled
 
 static inline bool static_key_enabled(struct static_key *key)
 {
 	return static_key_count(key).counter > 0;
 }
+
 #endif	/* _LINUX_JUMP_LABEL_H */

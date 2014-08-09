@@ -121,7 +121,6 @@ static void __jump_label_transform(struct jump_entry *entry,
 	
 	// and now do the actual copy:
 	memcpy((void*) entry->code, &code, JUMP_LABEL_NOP_SIZE);
-	inits = 0;
 }
 
 void arch_jump_label_transform(struct jump_entry *entry,

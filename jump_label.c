@@ -1,11 +1,3 @@
-/*
- * jump label support
- *
- * Copyright (C) 2009 Jason Baron <jbaron@redhat.com>
- * Copyright (C) 2011 Peter Zijlstra <pzijlstr@redhat.com>
- *
- */
-
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -35,9 +27,8 @@ int atomic_inc_not_zero(atomic_t *p)
 	if (p->counter) {
 		p->counter += 1;
 		return p->counter;
-	} else {
+	} else
 		return 0;
-	}
 }
 
 /**
@@ -46,15 +37,6 @@ int atomic_inc_not_zero(atomic_t *p)
 int atomic_dec_and_mutex_lock(atomic_t *p)
 {
 	return --(p->counter);
-
-}
-
-void jump_label_lock(void)
-{
-}
-
-void jump_label_unlock(void)
-{
 }
 
 // stub out kernel_text_address() for now
@@ -96,7 +78,7 @@ void static_key_slow_inc(struct static_key *key)
 	if (atomic_inc_not_zero(&key->enabled))
 		return;
 
-	jump_label_lock();
+    // jl lock()	
 	if (atomic_read(&key->enabled) == 0) {
 		if (!jump_label_get_branch_default(key))
 			jump_label_update(key, JUMP_LABEL_ENABLE);
@@ -104,44 +86,30 @@ void static_key_slow_inc(struct static_key *key)
 			jump_label_update(key, JUMP_LABEL_DISABLE);
 	}
 	atomic_inc(&key->enabled);
-	jump_label_unlock();
+	// jl unlock()
 }
 
-static void __static_key_slow_dec(struct static_key *key,
-		unsigned long rate_limit, void *work)
+static void __static_key_slow_dec(struct static_key *key)
 {
+	// lock and aquire mutex
 	if (!atomic_dec_and_mutex_lock(&key->enabled)) {
 		WARN(atomic_read(&key->enabled) < 0,
 		     "jump label: negative count!\n");
 		return;
 	}
 
-//	if (rate_limit) {
-//		atomic_inc(&key->enabled);
-//		schedule_delayed_work(work, rate_limit);
-//	} else {
-		if (!jump_label_get_branch_default(key))
-			jump_label_update(key, JUMP_LABEL_DISABLE);
-		else
-			jump_label_update(key, JUMP_LABEL_ENABLE);
-//	}
-	jump_label_unlock();
+	if (!jump_label_get_branch_default(key))
+		jump_label_update(key, JUMP_LABEL_DISABLE);
+	else
+		jump_label_update(key, JUMP_LABEL_ENABLE);
+//	unlock mutex()
 }
-
-/* disable ratelimit related stuff for now 
-static void jump_label_update_timeout(struct work_struct *work)
-{
-	struct static_key_deferred *key =
-		container_of(work, struct static_key_deferred, work.work);
-	__static_key_slow_dec(&key->key, 0, NULL);
-}
-*/
 
 /* export */
 void static_key_slow_dec(struct static_key *key)
 {
 	STATIC_KEY_CHECK_USE();
-	__static_key_slow_dec(key, 0, NULL);
+	__static_key_slow_dec(key);
 }
 
 static int addr_conflict(struct jump_entry *entry, void *start, void *end)
@@ -216,7 +184,7 @@ void jump_label_init(void)
 	struct static_key *key = NULL;
 	struct jump_entry *iter;
 
-	jump_label_lock();
+	// jl lock()
 	jump_label_sort_entries(iter_start, iter_stop);
 
 	for (iter = iter_start; iter < iter_stop; iter++) {
@@ -234,7 +202,7 @@ void jump_label_init(void)
 		*((unsigned long *)&key->entries) += (unsigned long)iter;
 	}
 	static_key_initialized = true;
-	jump_label_unlock();
+	// jl unlock
 }
 
 /***
