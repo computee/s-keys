@@ -36,6 +36,25 @@ make
 
 To use static keys, just include the header and initialize like this:
 
+```
+#include <s-keys.h>
+
+// declare static keys globally:
+struct static_key key = STATIC_KEY_INIT_TRUE;
+
+int main (int argc, char *argv[])
+{
+    jump_label_init();
+
+    if (static_key_true(&key))
+	printf("A\n");
+    else
+	printf("B\n");
+
+
+}
+```
+
 Todo
 ===
 
