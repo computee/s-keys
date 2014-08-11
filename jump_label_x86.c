@@ -1,4 +1,16 @@
 /*
+Original code copyright:
+
+Copyright (C) 2009-2012 Jason Baron <jbaron@redhat.com>
+Copyright (C) 2011-2012 Peter Zijlstra <pzijlstr@redhat.com>
+
+New code / modified code copyright:
+
+Copyright (C) 2014 Patrick McCormick <patm@pdx.edu>
+
+Distributable under the terms of the GPLv2, see LICENSE for full text.
+*/
+/*
  * jump label x86 support
  *
  * Copyright (C) 2009 Jason Baron <jbaron@redhat.com>
