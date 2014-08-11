@@ -66,3 +66,8 @@ pull requests / patches welcome
 * unit tests -like make targets and programs
 
 
+Contact
+===
+
+Patrick McCormick
+patm()pdx.edu

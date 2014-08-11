@@ -1,5 +1,4 @@
-#ifndef _X86_JUMP_LABEL_H
-#define _X86_JUMP_LABEL_H
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -45,4 +44,3 @@ l_yes:
 	return true;
 }
 
-#endif
