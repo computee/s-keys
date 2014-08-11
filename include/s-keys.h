@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #ifdef __LP64__
-#include <jump_label_x86.h>
+#include <s-keys_x86.h>
 #endif
 
 // atomic defs should go in arch-dependent header:

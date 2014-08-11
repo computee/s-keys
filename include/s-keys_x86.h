@@ -16,7 +16,19 @@
 # define STATIC_KEY_INIT_NOP GENERIC_NOP5_ATOMIC
 #endif
 
+#ifdef __LP64__
+typedef uint64_t jump_label_t;
+#else
+typedef uint32_t jump_label_t;
+#endif
+
 struct static_key;
+
+struct jump_entry {
+	jump_label_t code;
+	jump_label_t target;
+	jump_label_t key;
+};
 
 static bool __always_inline arch_static_branch(struct static_key *key)
 {
@@ -32,18 +44,5 @@ static bool __always_inline arch_static_branch(struct static_key *key)
 l_yes:
 	return true;
 }
-
-
-#ifdef __LP64__
-typedef uint64_t jump_label_t;
-#else
-typedef uint32_t jump_label_t;
-#endif
-
-struct jump_entry {
-	jump_label_t code;
-	jump_label_t target;
-	jump_label_t key;
-};
 
 #endif

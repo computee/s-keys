@@ -13,8 +13,8 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include <jump_label.h>
-#include <jump_label_x86.h>
+#include <s-keys.h>
+#include <s-keys_x86.h>
 
 static inline void *pageof(const void* p)
 {
