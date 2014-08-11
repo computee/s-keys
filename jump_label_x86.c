@@ -53,8 +53,8 @@ static void bug_at(unsigned char *ip, int line)
 	 * corrupting the kernel.
 	 */
 
-	printf("Unexpected op at %pS [%p] (%02x %02x %02x %02x %02x) %s:%d\n",
-	       ip, ip, ip[0], ip[1], ip[2], ip[3], ip[4], __FILE__, line);
+	printf("Unexpected op at %p (%02x %02x %02x %02x %02x) %s:%d\n",
+	       ip, ip[0], ip[1], ip[2], ip[3], ip[4], __FILE__, line);
 	assert(false);
 }
 
@@ -65,6 +65,7 @@ static void __jump_label_transform(struct jump_entry *entry,
 	union jump_code_union code;
 	const unsigned char default_nop[] = { STATIC_KEY_INIT_NOP };
 	const unsigned char ideal_nop[] = { STATIC_KEY_INIT_NOP };
+//	init = 1;
 
 	if (type == JUMP_LABEL_ENABLE) {
 		if (init) {
