@@ -39,7 +39,7 @@ To use static keys, just include the header and initialize like this:
 ```
 #include <s-keys.h>
 
-// declare static keys globally:
+// must declare globally:
 struct static_key key = STATIC_KEY_INIT_TRUE;
 
 int main (int argc, char *argv[])
@@ -47,10 +47,9 @@ int main (int argc, char *argv[])
     jump_label_init();
 
     if (static_key_true(&key))
-	printf("A\n");
+        printf("A\n");
     else
-	printf("B\n");
-
+        printf("B\n");
 
 }
 ```
