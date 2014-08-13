@@ -1,5 +1,4 @@
-#ifndef _ASM_X86_ASM_H
-#define _ASM_X86_ASM_H
+#pragma once
 
 #define __ASM_FORM(x)	" " #x " "
 #define __ASM_FORM_RAW(x)     #x
@@ -13,43 +12,6 @@
 # define __ASM_SEL_RAW(a,b) __ASM_FORM_RAW(b)
 #endif
 
-#define __ASM_SIZE(inst, ...)	__ASM_SEL(inst##l##__VA_ARGS__, \
-					  inst##q##__VA_ARGS__)
-#define __ASM_REG(reg)         __ASM_SEL_RAW(e##reg, r##reg)
-
 #define _ASM_PTR	__ASM_SEL(.long, .quad)
 #define _ASM_ALIGN	__ASM_SEL(.balign 4, .balign 8)
 
-#define _ASM_MOV	__ASM_SIZE(mov)
-#define _ASM_INC	__ASM_SIZE(inc)
-#define _ASM_DEC	__ASM_SIZE(dec)
-#define _ASM_ADD	__ASM_SIZE(add)
-#define _ASM_SUB	__ASM_SIZE(sub)
-#define _ASM_XADD	__ASM_SIZE(xadd)
-
-#define _ASM_AX		__ASM_REG(ax)
-#define _ASM_BX		__ASM_REG(bx)
-#define _ASM_CX		__ASM_REG(cx)
-#define _ASM_DX		__ASM_REG(dx)
-#define _ASM_SP		__ASM_REG(sp)
-#define _ASM_BP		__ASM_REG(bp)
-#define _ASM_SI		__ASM_REG(si)
-#define _ASM_DI		__ASM_REG(di)
-
-/* Exception table entry */
-#define _ASM_EXTABLE(from,to)					\
-	" .pushsection \"__ex_table\",\"a\"\n"			\
-	" .balign 8\n"						\
-	" .long (" #from ") - .\n"				\
-	" .long (" #to ") - .\n"				\
-	" .popsection\n"
-
-#define _ASM_EXTABLE_EX(from,to)				\
-	" .pushsection \"__ex_table\",\"a\"\n"			\
-	" .balign 8\n"						\
-	" .long (" #from ") - .\n"				\
-	" .long (" #to ") - . + 0x7ffffff0\n"			\
-	" .popsection\n"
-/* For C file, we already have NOKPROBE_SYMBOL macro */
-
-#endif /* _ASM_X86_ASM_H */
