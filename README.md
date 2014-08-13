@@ -2,7 +2,7 @@ s-keys
 ===
 
 Port of linux kernel jump labels to userspace. Uses GCC goto asm extension and
- some other gcc/gas specific extensions (always online, .pushsection, section attributes).
+ some other gcc/gas specific extensions (always inline, .pushsection, section attributes).
 
 Jump labels described in the kernel's jump_label.h:
 
