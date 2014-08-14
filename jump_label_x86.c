@@ -10,12 +10,6 @@ Copyright (C) 2014 Patrick McCormick <patm@pdx.edu>
 
 Distributable under the terms of the GPLv2, see LICENSE for full text.
 */
-/*
- * jump label x86 support
- *
- * Copyright (C) 2009 Jason Baron <jbaron@redhat.com>
- *
- */
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
@@ -28,19 +22,20 @@ Distributable under the terms of the GPLv2, see LICENSE for full text.
 #include <s-keys.h>
 #include <s-keys_x86.h>
 
+/*
+ * TODO init pagesize once per program
+ */
 static inline void *pageof(const void* p)
 {
 	size_t pagesize = sysconf(_SC_PAGESIZE);
 	return (void*) ((uintptr_t)p & ~(pagesize - 1));
 }
 
-// text_poke are kernel equivalents of mprotect, stub out for now:
-
+/**
+ * Unprotect page where entry->code lies
+ */
 void *sk_mprotect(void *addr, size_t len)
 {
-	printf("%p\n", addr);
-	printf("%p\n", pageof(addr));
-
 	if (mprotect(pageof(addr), len, PROT_READ | PROT_WRITE | PROT_EXEC)) {
 		perror("mprotect");
 		return NULL;
