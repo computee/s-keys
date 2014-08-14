@@ -62,19 +62,21 @@ static void bug_at(unsigned char *ip, int line)
 
 	printf("Unexpected op at %p (%02x %02x %02x %02x %02x) %s:%d\n",
 	       ip, ip[0], ip[1], ip[2], ip[3], ip[4], __FILE__, line);
-	assert(false);
+	//assert(false);
 }
 
 static void __jump_label_transform(struct jump_entry *entry,
 				   enum jump_label_type type,
 				   int init)
 {
-	union jump_code_union code;
 	const unsigned char default_nop[] = { STATIC_KEY_INIT_NOP };
 	const unsigned char ideal_nop[] = { STATIC_KEY_INIT_NOP };
-//	init = 1;
+	union jump_code_union code = { .jump = 0xe9,
+				       .offset = entry->target - (entry->code + JUMP_LABEL_NOP_SIZE)
+				     };
 
 	if (type == JUMP_LABEL_ENABLE) {
+//		printf("ENABLE\n");
 		if (init) {
 			/*
 			 * Jump label is enabled for the first time.
@@ -92,10 +94,8 @@ static void __jump_label_transform(struct jump_entry *entry,
 				bug_at((void *)entry->code, __LINE__);
 		}
 
-		code.jump = 0xe9;
-		code.offset = entry->target -
-				(entry->code + JUMP_LABEL_NOP_SIZE);
 	} else {
+//		printf("DISABLE\n");
 		/*
 		 * We are disabling this jump label. If it is not what
 		 * we think it is, then something must have gone wrong.
@@ -106,9 +106,6 @@ static void __jump_label_transform(struct jump_entry *entry,
 			if (unlikely(memcmp((void *)entry->code, default_nop, 5) != 0))
 				bug_at((void *)entry->code, __LINE__);
 		} else {
-			code.jump = 0xe9;
-			code.offset = entry->target -
-				(entry->code + JUMP_LABEL_NOP_SIZE);
 			if (unlikely(memcmp((void *)entry->code, &code, 5) != 0))
 				bug_at((void *)entry->code, __LINE__);
 		}

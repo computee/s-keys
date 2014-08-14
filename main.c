@@ -1,22 +1,34 @@
 #include <stdio.h>
 
-#include <jump_label.h>
+#include <s-keys.h>
 
-static struct static_key key = STATIC_KEY_INIT_FALSE;
+struct static_key key = STATIC_KEY_INIT_FALSE;
 
 int main (int argc, char *argv[])
 {
 	jump_label_init();
-//	arch_static_branch(&key);
 
-
-	static_key_slow_inc(&key);
 
 
 	if (static_key_false(&key))
-		printf("true\n");
+		printf("...\n");
 	else
-		printf("false\n");
+		printf("%d\n", argc);
+
+	static_key_slow_inc(&key);
+
+	if (static_key_false(&key))
+		printf("...\n");
+	else
+		printf("%d\n", argc);
+
+	static_key_slow_dec(&key);
+	static_key_slow_dec(&key);
+
+	if (static_key_false(&key))
+		printf("...\n");
+	else
+		printf("%d\n", argc);
 
 	return 0;
 }
